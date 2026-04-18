@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>站点资源总索引</title>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <style>
+    /* 自定义样式：让页面看起来更像你喜欢的简约风格 */
+    :root { --theme-color: #42b983; }
+    .sidebar { background-color: #f8f9fa; }
+  </style>
+</head>
+<body>
+  <div id="app">加载中...</div>
+  <script>
+    window.$docsify = {
+      name: '资源中心',
+      repo: '',            // 选填：你的 GitHub 地址
+      loadSidebar: true,   // 必须：开启侧边栏
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md' // 确保子目录也能找到侧边栏
+      },
+      subMaxLevel: 3,      // 自动提取 MD 里的标题生成层级
+      auto2top: true       // 切换页面后自动回到顶部
+    }
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+</body>
+</html>
