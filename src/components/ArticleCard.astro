@@ -1,6 +1,6 @@
 ---
 import type { BlogEntry } from '../lib/blog';
-import { formatDate, getPostUrl } from '../lib/blog';
+import { formatDate, getPostUrl, getTagUrl } from '../lib/blog';
 
 interface Props {
   post: BlogEntry;
@@ -10,10 +10,11 @@ const { post } = Astro.props;
 ---
 
 <article class="article-card">
+  {post.data.cover && <img class="cover-image" src={post.data.cover} alt={post.data.title} loading="lazy" />}
   <p class="section-note">{post.data.category} - {formatDate(post.data.date)}</p>
   <h2><a href={getPostUrl(post)}>{post.data.title}</a></h2>
   <p class="article-excerpt">{post.data.description}</p>
   <div class="tag-list" aria-label="Tags">
-    {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+    {post.data.tags.map((tag) => <a class="tag" href={getTagUrl(tag)}>#{tag}</a>)}
   </div>
 </article>

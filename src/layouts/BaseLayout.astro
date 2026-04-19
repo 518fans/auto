@@ -1,7 +1,9 @@
 ---
 import '../styles/global.css';
+import { getCollection } from 'astro:content';
 import blogConfig from '../../blog.config.mjs';
 import SeoHead from '../components/SeoHead.astro';
+import { getCalendarUrl, getCategoryUrl, getTagsUrl, sortPosts } from '../lib/blog';
 
 interface Props {
   title: string;
@@ -12,6 +14,8 @@ interface Props {
 }
 
 const { title, description, canonicalPath, imagePath, pageType = 'website' } = Astro.props;
+const posts = sortPosts(await getCollection('blog'));
+const categories = [...new Set(posts.map((post) => post.data.category))];
 ---
 
 <!DOCTYPE html>
@@ -27,17 +31,63 @@ const { title, description, canonicalPath, imagePath, pageType = 'website' } = A
   </head>
   <body>
     <header class="site-header">
-      <div class="container site-header__inner">
-        <a href="/">{blogConfig.siteName}</a>
-        <nav class="site-nav" aria-label="Primary">
-          <a href="/blog.html">Blog</a>
-          <a href="/sidebar.html">Sidebar</a>
-          <a href="/sitemap.xml">Sitemap</a>
+      <div class="container site-header__stack">
+        <div class="site-header__inner">
+          <a href="/">{blogConfig.siteName}</a>
+          <nav class="site-nav" aria-label="Primary">
+            <a href="/blog.html">Blog</a>
+            <a href={getCalendarUrl()} data-calendar-toggle aria-controls="calendar" aria-expanded="false">Calendar</a>
+            <a href="/search.html">Search</a>
+            <a href={getTagsUrl()}>Tags</a>
+            <a href="/sidebar.html">Sidebar</a>
+            <a href="/sitemap.xml">Sitemap</a>
+          </nav>
+        </div>
+        <form class="site-search" action="/search.html" method="get" role="search">
+          <label class="sr-only" for="site-search-input">Search blog posts</label>
+          <input
+            id="site-search-input"
+            name="q"
+            type="search"
+            placeholder="Search blog titles and content"
+            autocomplete="off"
+          />
+          <button type="submit">Search</button>
+        </form>
+        <nav class="site-category-nav" aria-label="Categories">
+          {categories.map((category) => <a href={getCategoryUrl(category)}>{category}</a>)}
         </nav>
       </div>
     </header>
     <main class="container">
       <slot />
     </main>
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <div class="footer-copy">
+          <strong>{blogConfig.siteName}</strong>
+          <p class="footer-note">
+            提供公开内容研究、平台运营观察与增长经验整理，并公开说明站点身份、编辑原则、联系渠道与合规政策。
+          </p>
+        </div>
+        <div class="footer-link-groups">
+          <nav class="footer-nav" aria-label="Footer primary">
+            <span class="footer-nav__title">Explore</span>
+            <a href="/blog.html">Blog</a>
+            <a href="/search.html">Search</a>
+            <a href={getTagsUrl()}>Tags</a>
+            <a href="/sitemap.xml">Sitemap</a>
+          </nav>
+          <nav class="footer-nav" aria-label="Footer trust">
+            <span class="footer-nav__title">Trust</span>
+            <a href="/about.html">About</a>
+            <a href="/editorial-policy.html">Editorial Policy</a>
+            <a href="/contact.html">Contact</a>
+            <a href="/privacy-policy.html">Privacy Policy</a>
+            <a href="/disclaimer.html">Disclaimer</a>
+          </nav>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

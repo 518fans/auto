@@ -9,6 +9,8 @@ const blog = defineCollection({
     target_repo: z.string(),
     category: z.string(),
     description: z.string(),
+    cover: z.string().optional(),
+    cover_tag: z.string().optional(),
   }),
 });
 

@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { formatDate, getDateArchiveUrl, getDateArchives, type BlogEntry, sortPosts } from '../../../lib/blog';
+
+export async function getStaticPaths() {
+  const posts = sortPosts(await getCollection('blog'));
+
+  return getDateArchives(posts).map((archive) => ({
+    params: { date: archive.dateKey },
+    props: archive,
+  }));
+}
+
+interface Props {
+  dateKey: string;
+  date: Date;
+  posts: BlogEntry[];
+}
+
+const { dateKey, date, posts } = Astro.props;
+const formattedDate = formatDate(date);
+---
+
+<BaseLayout
+  title={`Posts from ${formattedDate}`}
+  description={`Blog posts published on ${formattedDate}`}
+  canonicalPath={getDateArchiveUrl(dateKey)}
+>
+  <section class="hero">
+    <h1 class="page-title">{formattedDate}</h1>
+    <p class="page-intro">
+      {posts.length} post{posts.length === 1 ? '' : 's'} published on this date. <a href="/blog.html#calendar">Back to calendar</a>.
+    </p>
+  </section>
+
+  <section class="grid grid--cards">
+    {posts.map((post) => <ArticleCard post={post} />)}
+  </section>
+</BaseLayout>

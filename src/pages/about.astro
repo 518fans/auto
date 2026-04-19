@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import blogConfig from '../../blog.config.mjs';
+---
+
+<BaseLayout
+  title="关于我们"
+  description="了解 518fans Blog 的站点定位、内容范围、经验来源与更新原则。"
+  canonicalPath="/about.html"
+>
+  <section class="hero section-stack">
+    <p class="section-note">About</p>
+    <h1 class="page-title">关于我们</h1>
+    <p class="page-intro">
+      {blogConfig.siteName}
+      是围绕社交媒体增长、内容运营与平台观察整理的公开内容站点，重点覆盖 Instagram、Facebook、TikTok 等平台的实操经验与案例判断。
+    </p>
+  </section>
+
+  <article class="article-shell">
+    <h2>我们提供什么内容</h2>
+    <p>
+      站内文章主要讨论账号增长、内容策略、互动质量、转化路径、平台分发逻辑和常见运营误区。内容目标是帮助读者更快理解问题背景、识别执行风险，并形成更可落地的判断。
+    </p>
+
+    <h2>经验与信息来源</h2>
+    <p>
+      内容基于长期行业观察、账号运营经验、公开平台政策、产品更新说明以及典型案例拆解整理而成。对于引用的外部资料，站内会优先采用可公开核验的信息来源。
+    </p>
+
+    <h2>适用边界</h2>
+    <p>
+      本站内容用于教育、信息参考与策略讨论，不构成法律、财务、医疗或平台官方承诺。不同账号体量、行业、地区和平台阶段会影响实际结果，读者应结合自身场景判断。
+    </p>
+
+    <h2>更新原则</h2>
+    <p>
+      当平台机制、政策或实践环境出现明显变化时，站内会优先更新受影响的主题页面；如发现表述错误、信息过期或上下文不完整，也会进行修订与补充。
+    </p>
+  </article>
+</BaseLayout>

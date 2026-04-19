@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BlogSidebar from '../../../components/BlogSidebar.astro';
 import RelatedPosts from '../../../components/RelatedPosts.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { formatDate, getCategoryUrl, getPostUrl, getRelatedPosts, sortPosts, type BlogEntry } from '../../../lib/blog';
+import { formatDate, getCategoryUrl, getPostUrl, getRelatedPosts, getTagUrl, sortPosts, type BlogEntry } from '../../../lib/blog';
 
 export async function getStaticPaths() {
   const posts = sortPosts(await getCollection('blog'));
@@ -34,6 +34,7 @@ const { Content } = await entry.render();
   title={entry.data.title}
   description={entry.data.description}
   canonicalPath={getPostUrl(entry)}
+  imagePath={entry.data.cover}
   pageType="article"
 >
   <div class="article-layout">
@@ -47,14 +48,16 @@ const { Content } = await entry.render();
       </nav>
 
       <header>
-        <p class="section-note">Target repo: {entry.data.target_repo}</p>
+        {entry.data.cover && (
+          <img class="article-cover" src={entry.data.cover} alt={entry.data.title} loading="eager" />
+        )}
         <h1 class="article-title">{entry.data.title}</h1>
         <ul class="article-meta">
           <li>{formatDate(entry.data.date)}</li>
           <li>{entry.data.category}</li>
         </ul>
         <div class="tag-list">
-          {entry.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+          {entry.data.tags.map((tag) => <a class="tag" href={getTagUrl(tag)}>#{tag}</a>)}
         </div>
         <p class="article-excerpt">{entry.data.description}</p>
       </header>

@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getTagUrl, sortPosts, type BlogEntry } from '../../../lib/blog';
+
+export async function getStaticPaths() {
+  const posts = sortPosts(await getCollection('blog'));
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+  return tags.map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts.filter((post) => post.data.tags.includes(tag)),
+    },
+  }));
+}
+
+interface Props {
+  tag: string;
+  posts: BlogEntry[];
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`Tag: ${tag}`}
+  description={`Static article archive for tag ${tag}`}
+  canonicalPath={getTagUrl(tag)}
+>
+  <section class="hero">
+    <p class="section-note"><a href="/blog.html">Blog</a> / Tag</p>
+    <h1 class="page-title">#{tag}</h1>
+    <p class="page-intro">{posts.length} article{posts.length === 1 ? '' : 's'} under this tag.</p>
+  </section>
+
+  <section class="grid grid--cards">
+    {posts.map((post) => <ArticleCard post={post} />)}
+  </section>
+</BaseLayout>

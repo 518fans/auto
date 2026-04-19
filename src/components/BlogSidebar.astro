@@ -1,6 +1,6 @@
 ---
 import type { BlogEntry } from '../lib/blog';
-import { getCategoryUrl, getPostUrl, groupPostsByCategory, sortPosts } from '../lib/blog';
+import { getCategoryUrl, getPostUrl, getTagUrl, getTagsUrl, groupPostsByCategory, sortPosts } from '../lib/blog';
 
 interface Props {
   posts: BlogEntry[];
@@ -10,6 +10,13 @@ interface Props {
 const { posts, currentPost } = Astro.props;
 const categoryGroups = Object.entries(groupPostsByCategory(sortPosts(posts)));
 const recentPosts = sortPosts(posts).slice(0, 8);
+const tagCounts = [...new Set(posts.flatMap((post) => post.data.tags))]
+  .map((tag) => ({
+    tag,
+    count: posts.filter((post) => post.data.tags.includes(tag)).length,
+  }))
+  .sort((left, right) => right.count - left.count || left.tag.localeCompare(right.tag))
+  .slice(0, 12);
 ---
 
 <aside class="sidebar section-stack">
@@ -33,6 +40,17 @@ const recentPosts = sortPosts(posts).slice(0, 8);
             ))}
           </ul>
         </div>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2><a href={getTagsUrl()}>All Tags</a></h2>
+    <div class="tag-list" aria-label="Popular tags">
+      {tagCounts.map(({ tag, count }) => (
+        <a class="tag" href={getTagUrl(tag)}>
+          #{tag} ({count})
+        </a>
       ))}
     </div>
   </section>

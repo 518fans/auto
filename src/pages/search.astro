@@ -1,0 +1,230 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { formatDate, getPostUrl, getSearchUrl, sortPosts, stripMarkdown } from '../lib/blog';
+
+const posts = sortPosts(await getCollection('blog'));
+const searchDocuments = posts.map((post) => {
+  const content = stripMarkdown(post.body);
+
+  return {
+    title: post.data.title,
+    description: post.data.description,
+    category: post.data.category,
+    tags: post.data.tags,
+    url: getPostUrl(post),
+    publishedAt: post.data.date.valueOf(),
+    publishedLabel: formatDate(post.data.date),
+    excerpt: content.slice(0, 220),
+    content,
+  };
+});
+const searchPayload = JSON.stringify(searchDocuments).replace(/</g, '\\u003c');
+---
+
+<BaseLayout
+  title="Search"
+  description="Search blog titles and post content"
+  canonicalPath={getSearchUrl()}
+>
+  <section class="hero section-stack">
+    <p class="section-note">Search the full blog archive</p>
+    <h1 class="page-title">Search</h1>
+    <p class="page-intro">Search across blog titles, descriptions, categories, tags, and article content.</p>
+    <form class="search-form search-form--page" id="search-form" action={getSearchUrl()} method="get" role="search">
+      <label class="sr-only" for="search-query">Search blog posts</label>
+      <input
+        id="search-query"
+        name="q"
+        type="search"
+        placeholder="Search titles and content"
+        autocomplete="off"
+      />
+      <button type="submit">Search</button>
+    </form>
+  </section>
+
+  <section class="panel section-stack search-results-panel">
+    <p id="search-status" class="section-note">Enter a keyword to search all blog posts.</p>
+    <div id="search-results" class="search-results" aria-live="polite"></div>
+  </section>
+
+  <script id="search-documents" type="application/json" is:inline set:html={searchPayload}></script>
+  <script is:inline>
+    const searchDataElement = document.getElementById('search-documents');
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-query');
+    const searchResults = document.getElementById('search-results');
+    const searchStatus = document.getElementById('search-status');
+    const searchDocuments = JSON.parse(searchDataElement?.textContent || '[]');
+
+    const escapeHtml = (value) =>
+      value.replace(/[&<>"']/g, (character) => {
+        const replacements = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        };
+
+        return replacements[character] || character;
+      });
+
+    const normalize = (value) => value.toLowerCase().replace(/\s+/g, ' ').trim();
+
+    const buildSnippet = (document, tokens) => {
+      const source = document.content || document.excerpt || document.description;
+
+      if (!source) {
+        return '';
+      }
+
+      const normalizedSource = normalize(source);
+      const index = tokens.reduce((firstIndex, token) => {
+        const nextIndex = normalizedSource.indexOf(token);
+        if (nextIndex === -1) {
+          return firstIndex;
+        }
+
+        return firstIndex === -1 ? nextIndex : Math.min(firstIndex, nextIndex);
+      }, -1);
+
+      const snippetStart = index > 60 ? index - 60 : 0;
+      const snippetEnd = Math.min(source.length, snippetStart + 180);
+      const snippet = source.slice(snippetStart, snippetEnd).trim();
+
+      if (!snippet) {
+        return '';
+      }
+
+      const prefix = snippetStart > 0 ? '...' : '';
+      const suffix = snippetEnd < source.length ? '...' : '';
+      return `${prefix}${snippet}${suffix}`;
+    };
+
+    const renderResults = (query) => {
+      if (!searchResults || !searchStatus) {
+        return;
+      }
+
+      const normalizedQuery = normalize(query);
+      const tokens = normalizedQuery.split(' ').filter(Boolean);
+
+      if (!tokens.length) {
+        searchStatus.textContent = 'Enter a keyword to search all blog posts.';
+        searchResults.innerHTML = '';
+        return;
+      }
+
+      const results = searchDocuments
+        .map((document) => {
+          const title = normalize(document.title);
+          const description = normalize(document.description);
+          const category = normalize(document.category);
+          const tags = document.tags.map((tag) => normalize(tag));
+          const content = normalize(document.content);
+
+          let score = 0;
+
+          if (title.includes(normalizedQuery)) {
+            score += 40;
+          }
+
+          if (description.includes(normalizedQuery)) {
+            score += 18;
+          }
+
+          if (content.includes(normalizedQuery)) {
+            score += 14;
+          }
+
+          tokens.forEach((token) => {
+            if (title.includes(token)) {
+              score += 12;
+            }
+            if (description.includes(token)) {
+              score += 6;
+            }
+            if (category.includes(token)) {
+              score += 5;
+            }
+            if (tags.some((tag) => tag.includes(token))) {
+              score += 5;
+            }
+            if (content.includes(token)) {
+              score += 2;
+            }
+          });
+
+          return score > 0 ? { ...document, score } : null;
+        })
+        .filter(Boolean)
+        .sort((left, right) => right.score - left.score || right.publishedAt - left.publishedAt);
+
+      searchStatus.textContent = `${results.length} result${results.length === 1 ? '' : 's'} for "${query}"`;
+
+      if (!results.length) {
+        searchResults.innerHTML = '<p class="section-note">No matching posts found. Try another keyword.</p>';
+        return;
+      }
+
+      searchResults.innerHTML = results
+        .map((result) => {
+          const snippet = buildSnippet(result, tokens) || result.excerpt || result.description;
+          const tagMarkup = result.tags
+            .map((tag) => `<span class="tag">#${escapeHtml(tag)}</span>`)
+            .join('');
+
+          return `
+            <article class="article-card search-result-card">
+              <p class="section-note">${escapeHtml(result.category)} - ${escapeHtml(result.publishedLabel)}</p>
+              <h2><a href="${encodeURI(result.url)}">${escapeHtml(result.title)}</a></h2>
+              <p class="article-excerpt">${escapeHtml(result.description)}</p>
+              <p>${escapeHtml(snippet)}</p>
+              <div class="tag-list" aria-label="Tags">${tagMarkup}</div>
+            </article>
+          `;
+        })
+        .join('');
+    };
+
+    const syncQuery = (query) => {
+      const url = new URL(window.location.href);
+
+      if (query) {
+        url.searchParams.set('q', query);
+      } else {
+        url.searchParams.delete('q');
+      }
+
+      window.history.replaceState({}, '', url);
+    };
+
+    const runSearch = () => {
+      if (!searchInput) {
+        return;
+      }
+
+      const query = searchInput.value.trim();
+      syncQuery(query);
+      renderResults(query);
+    };
+
+    const initialQuery = new URLSearchParams(window.location.search).get('q')?.trim() || '';
+
+    if (searchInput) {
+      searchInput.value = initialQuery;
+      searchInput.addEventListener('input', runSearch);
+    }
+
+    if (searchForm) {
+      searchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        runSearch();
+      });
+    }
+
+    renderResults(initialQuery);
+  </script>
+</BaseLayout>

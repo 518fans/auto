@@ -2,15 +2,133 @@
 import { getCollection } from 'astro:content';
 import ArticleCard from '../../components/ArticleCard.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { sortPosts } from '../../lib/blog';
+import { getDateArchiveUrl, getDateArchives, getTagsUrl, sortPosts } from '../../lib/blog';
 
 const posts = sortPosts(await getCollection('blog'));
+const dateArchives = getDateArchives(posts);
+const monthGroups = [...dateArchives.reduce((groups, archive) => {
+  const monthKey = archive.dateKey.slice(0, 7);
+  const bucket = groups.get(monthKey) ?? [];
+  bucket.push(archive);
+  groups.set(monthKey, bucket);
+  return groups;
+}, new Map<string, typeof dateArchives>()).entries()]
+  .sort(([left], [right]) => right.localeCompare(left))
+  .map(([monthKey, archives]) => {
+    const [year, month] = monthKey.split('-').map(Number);
+    const monthDate = new Date(Date.UTC(year, month - 1, 1));
+    const totalDays = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    const archiveByDay = new Map(archives.map((archive) => [Number(archive.dateKey.slice(8, 10)), archive]));
+
+    return {
+      monthKey,
+      monthLabel: new Intl.DateTimeFormat('en', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      }).format(monthDate),
+      leadingEmpty: monthDate.getUTCDay(),
+      days: Array.from({ length: totalDays }, (_, index) => {
+        const day = index + 1;
+        return {
+          day,
+          archive: archiveByDay.get(day),
+        };
+      }),
+    };
+  });
+const weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 ---
 
 <BaseLayout title="Blog" description="All blog posts" canonicalPath="/blog.html">
   <section class="hero">
     <h1 class="page-title">Blog</h1>
+    <p class="page-intro">Browse the latest posts or explore <a href={getTagsUrl()}>all tags</a>.</p>
   </section>
+
+  <section id="calendar" class="panel section-stack" hidden>
+    <div>
+      <p class="section-note">Publishing calendar</p>
+      <h2>Blog Calendar</h2>
+      <p class="page-intro">See how many posts were published each day. Click a highlighted day to open that date archive.</p>
+    </div>
+
+    <div class="calendar-months">
+      {monthGroups.map((month) => (
+        <section class="calendar-month">
+          <h3>{month.monthLabel}</h3>
+          <div class="calendar-weekdays" aria-hidden="true">
+            {weekdayLabels.map((label) => <span>{label}</span>)}
+          </div>
+          <div class="calendar-grid">
+            {Array.from({ length: month.leadingEmpty }).map(() => <span class="calendar-day calendar-day--empty"></span>)}
+            {month.days.map(({ day, archive }) =>
+              archive ? (
+                <a class="calendar-day calendar-day--active" href={getDateArchiveUrl(archive.dateKey)}>
+                  <span class="calendar-day__number">{day}</span>
+                  <span class="calendar-day__count">{archive.count} post{archive.count === 1 ? '' : 's'}</span>
+                </a>
+              ) : (
+                <div class="calendar-day">
+                  <span class="calendar-day__number">{day}</span>
+                </div>
+              ),
+            )}
+          </div>
+        </section>
+      ))}
+    </div>
+  </section>
+
+  <script is:inline>
+    const calendarSection = document.getElementById('calendar');
+    const calendarToggleLinks = document.querySelectorAll('a[data-calendar-toggle]');
+
+    if (calendarSection && calendarToggleLinks.length) {
+      const syncCalendarState = (expanded) => {
+        calendarSection.hidden = !expanded;
+        calendarToggleLinks.forEach((link) => {
+          link.setAttribute('aria-expanded', String(expanded));
+        });
+      };
+
+      const openCalendar = () => {
+        syncCalendarState(true);
+        calendarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}#calendar`);
+      };
+
+      const closeCalendar = () => {
+        syncCalendarState(false);
+        window.history.replaceState({}, '', `${window.location.pathname}${window.location.search}`);
+      };
+
+      syncCalendarState(window.location.hash === '#calendar');
+
+      calendarToggleLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          const targetUrl = new URL(link.href, window.location.href);
+          const samePage = targetUrl.pathname === window.location.pathname;
+
+          if (!samePage) {
+            return;
+          }
+
+          event.preventDefault();
+
+          if (calendarSection.hidden) {
+            openCalendar();
+          } else {
+            closeCalendar();
+          }
+        });
+      });
+
+      window.addEventListener('hashchange', () => {
+        syncCalendarState(window.location.hash === '#calendar');
+      });
+    }
+  </script>
 
   <section class="grid grid--cards">
     {posts.map((post) => <ArticleCard post={post} />)}

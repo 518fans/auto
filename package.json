@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "generate:covers": "node ./scripts/generate-covers.mjs",
     "sync:posts": "node ./scripts/sync-posts.mjs",
     "distribute:posts": "node ./scripts/distribute-posts.mjs",
     "publish:repos": "node ./scripts/publish-targets.mjs"

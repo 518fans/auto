@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getTagUrl, getTagsUrl, sortPosts } from '../../lib/blog';
+
+const posts = sortPosts(await getCollection('blog'));
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))]
+  .map((tag) => ({
+    tag,
+    count: posts.filter((post) => post.data.tags.includes(tag)).length,
+  }))
+  .sort((left, right) => right.count - left.count || left.tag.localeCompare(right.tag));
+---
+
+<BaseLayout
+  title="All Tags"
+  description="Browse all tags used across the blog."
+  canonicalPath={getTagsUrl()}
+>
+  <section class="hero">
+    <p class="section-note"><a href="/blog.html">Blog</a> / Tags</p>
+    <h1 class="page-title">All Tags</h1>
+    <p class="page-intro">{tags.length} tags across {posts.length} posts.</p>
+  </section>
+
+  <section class="panel section-stack">
+    <div class="tag-list" aria-label="All tags">
+      {tags.map(({ tag, count }) => (
+        <a class="tag" href={getTagUrl(tag)}>
+          #{tag} ({count})
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

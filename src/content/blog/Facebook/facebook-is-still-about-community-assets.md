@@ -1,6 +1,6 @@
-﻿---
+---
 title: Facebook 还值不值得做，关键不是流量而是社区资产
-date: 2026-04-19
+date: 2026-04-19T00:00:00.000Z
 slug: facebook-is-still-about-community-assets
 tags:
   - seo
@@ -9,6 +9,7 @@ tags:
 target_repo: auto
 category: Facebook
 description: Facebook 对很多品牌来说仍然有价值，但它的价值并不在“新鲜感”，而在于能否沉淀可重复触达、可持续对话的社区资产。
+cover: /images/blog/Facebook/facebook-is-still-about-community-assets.jpg
 ---
 ## 引言
 
@@ -44,4 +45,4 @@ Meta 在 [How Facebook distributes content](https://bn-in.latest.facebook.com/bu
 
 Facebook 还值不值得做，答案通常不在流量神话里，而在你是否真的需要一块可以持续经营关系的地方。它不一定给你最快的惊喜，却很可能给你最稳的那部分用户连接。
 
-如果品牌愿意从“社区资产”而不是“内容碰碰运气”的角度重新理解 Facebook，很多原本看起来低效的动作都会变得合理。页面、群组、讨论、重复触达，这些东西单看都不够刺激，但放在一起，恰恰构成了长期经营最难替代的部分。 
+如果品牌愿意从“社区资产”而不是“内容碰碰运气”的角度重新理解 Facebook，很多原本看起来低效的动作都会变得合理。页面、群组、讨论、重复触达，这些东西单看都不够刺激，但放在一起，恰恰构成了长期经营最难替代的部分。

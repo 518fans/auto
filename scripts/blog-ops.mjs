@@ -117,6 +117,8 @@ function renderMarkdown(data, content) {
     `target_repo: ${data.target_repo}`,
     `category: ${data.category}`,
     `description: ${data.description}`,
+    ...(data.cover ? [`cover: ${data.cover}`] : []),
+    ...(data.cover_tag ? [`cover_tag: ${data.cover_tag}`] : []),
     '---',
     '',
     content.trim(),
