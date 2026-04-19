@@ -1,0 +1,33 @@
+---
+import blogConfig from '../../blog.config.mjs';
+import { toAbsoluteUrl } from '../lib/blog';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  imagePath?: string;
+  type?: 'website' | 'article';
+}
+
+const { title, description, canonicalPath, imagePath = blogConfig.defaultOgImage, type = 'website' } = Astro.props;
+const canonical = toAbsoluteUrl(canonicalPath);
+const ogImage = toAbsoluteUrl(imagePath);
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta property="og:site_name" content={blogConfig.siteName} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="generator" content={Astro.generator} />

@@ -1,0 +1,23 @@
+{
+  "name": "518fans-auto-blog",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "sync:posts": "node ./scripts/sync-posts.mjs",
+    "distribute:posts": "node ./scripts/distribute-posts.mjs",
+    "publish:repos": "node ./scripts/publish-targets.mjs"
+  },
+  "dependencies": {
+    "astro": "^5.7.10",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.8",
+    "typescript": "^5.9.3"
+  }
+}

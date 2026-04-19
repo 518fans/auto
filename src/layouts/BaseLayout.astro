@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+import blogConfig from '../../blog.config.mjs';
+import SeoHead from '../components/SeoHead.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  imagePath?: string;
+  pageType?: 'website' | 'article';
+}
+
+const { title, description, canonicalPath, imagePath, pageType = 'website' } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <SeoHead
+      title={title}
+      description={description}
+      canonicalPath={canonicalPath}
+      imagePath={imagePath}
+      type={pageType}
+    />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a href="/">{blogConfig.siteName}</a>
+        <nav class="site-nav" aria-label="Primary">
+          <a href="/blog.html">Blog</a>
+          <a href="/sidebar.html">Sidebar</a>
+          <a href="/sitemap.xml">Sitemap</a>
+        </nav>
+      </div>
+    </header>
+    <main class="container">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <p class="footer-note">Astro static build on Vercel with automatic sitemap, canonical tags, and internal linking.</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+---
+import type { BlogEntry } from '../lib/blog';
+import { getCategoryUrl, getPostUrl, groupPostsByCategory, sortPosts } from '../lib/blog';
+
+interface Props {
+  posts: BlogEntry[];
+  currentPost?: BlogEntry;
+}
+
+const { posts, currentPost } = Astro.props;
+const categoryGroups = Object.entries(groupPostsByCategory(sortPosts(posts)));
+const recentPosts = sortPosts(posts).slice(0, 8);
+---
+
+<aside class="sidebar section-stack">
+  <section>
+    <h2>Blog Sidebar</h2>
+    <p class="section-note">Automatic category hubs, recent posts, and article-level navigation for internal linking.</p>
+  </section>
+
+  <section>
+    <h2>Categories</h2>
+    <div class="category-group section-stack">
+      {categoryGroups.map(([category, entries]) => (
+        <div>
+          <a href={getCategoryUrl(category)}>{category}</a>
+          <ul>
+            {entries.slice(0, 5).map((entry) => (
+              <li>
+                <a href={getPostUrl(entry)} aria-current={currentPost?.id === entry.id ? 'page' : undefined}>
+                  {entry.data.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2>Latest Posts</h2>
+    <ul>
+      {recentPosts.map((entry) => (
+        <li>
+          <a href={getPostUrl(entry)} aria-current={currentPost?.id === entry.id ? 'page' : undefined}>
+            {entry.data.title}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</aside>

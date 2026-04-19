@@ -1,0 +1,29 @@
+---
+import { getCollection } from 'astro:content';
+import ArticleCard from '../components/ArticleCard.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { sortPosts } from '../lib/blog';
+import blogConfig from '../../blog.config.mjs';
+
+const posts = sortPosts(await getCollection('blog'));
+const featuredPosts = posts.slice(0, 6);
+---
+
+<BaseLayout title={blogConfig.siteName} description={blogConfig.description} canonicalPath="/">
+  <section class="hero">
+    <p class="section-note">Astro + Vercel + local repo automation</p>
+    <h1>Static Blog Manager</h1>
+    <p>
+      Write Markdown locally, distribute it by <code>target_repo</code>, then let Vercel build real static pages after each push.
+      <code>/blog/%7Bcategory%7D/%7Bslug%7D.html</code>
+    </p>
+    <div class="site-nav">
+      <a href="/blog.html">Browse posts</a>
+      <a href="/sidebar.html">View sidebar.html</a>
+    </div>
+  </section>
+
+  <section class="grid grid--cards">
+    {featuredPosts.map((post) => <ArticleCard post={post} />)}
+  </section>
+</BaseLayout>

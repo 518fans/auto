@@ -1,45 +1,35 @@
-name: Auto Update Sidebar
+name: Astro Build Check
 
 on:
   push:
     branches:
       - main
-    paths:
-      - '*.md'
-      - '**/*.md'
-    paths-ignore:
-      - '_sidebar.md'
+  pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
-# 强制该工作流使用 Node.js 24 运行环境，消除过时警告
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        # 建议检查并使用最新版本，通常 v5+ 会原生支持 Node 24
-        uses: actions/checkout@v5 
+      - name: Checkout
+        uses: actions/checkout@v5
 
-      - name: Generate Sidebar
-        run: |
-          echo "* [首页](README.md)" > _sidebar.md
-          # 扫描并排序所有 md 文件
-          find . -maxdepth 2 -name "*.md" ! -name "README.md" ! -name "_*" | sort | while read -r file; do
-            clean_file=$(echo "$file" | sed 's|^\./||')
-            title=$(basename "$clean_file" .md)
-            echo "  * [$title]($clean_file)" >> _sidebar.md
-          done
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
-      - name: Commit and Push
-        if: github.actor != 'github-actions[bot]'
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add _sidebar.md
-          # 检查是否有文件更改，避免空提交报错
-          git diff --cached --quiet || (git commit -m "docs: auto update sidebar" && git push)
+      - name: Install
+        run: npm install
+
+      - name: Check
+        run: npm run check
+
+      - name: Build
+        run: npm run build

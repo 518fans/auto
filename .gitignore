@@ -32,3 +32,9 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Node / Astro / Vercel
+node_modules/
+dist/
+.astro/
+.vercel/

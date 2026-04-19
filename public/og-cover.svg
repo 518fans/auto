@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title>518fans Auto Blog</title>
+  <desc>Static Astro blog cover.</desc>
+  <rect width="1200" height="630" fill="#0f172a" />
+  <rect x="72" y="72" width="1056" height="486" rx="32" fill="#111827" stroke="#38bdf8" stroke-width="4" />
+  <text x="120" y="265" fill="#f8fafc" font-family="Arial, sans-serif" font-size="72" font-weight="700">518fans Auto Blog</text>
+  <text x="120" y="355" fill="#94a3b8" font-family="Arial, sans-serif" font-size="34">Astro static build + Vercel auto deploy + SEO automation</text>
+</svg>
