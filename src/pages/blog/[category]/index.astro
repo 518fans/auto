@@ -31,9 +31,7 @@ const { category, posts } = Astro.props;
   canonicalPath={getCategoryUrl(category)}
 >
   <section class="hero">
-    <p class="section-note">Category archive</p>
     <h1 class="page-title">{category}</h1>
-    <p class="page-intro">This category archive is included in the sitemap to strengthen topical clustering and crawl paths.</p>
   </section>
 
   <section class="grid grid--cards">

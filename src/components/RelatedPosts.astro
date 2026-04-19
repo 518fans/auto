@@ -12,7 +12,6 @@ const { posts } = Astro.props;
 {posts.length > 0 && (
   <section class="related-posts">
     <h2>Related Posts</h2>
-    <p class="section-note">Prioritize 3 to 5 nearby posts by category and tags to keep internal links relevant.</p>
     <ul>
       {posts.map((post) => (
         <li>

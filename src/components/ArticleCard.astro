@@ -10,7 +10,7 @@ const { post } = Astro.props;
 ---
 
 <article class="article-card">
-  <p class="section-note">{post.data.category} ¡¤ {formatDate(post.data.date)}</p>
+  <p class="section-note">{post.data.category} - {formatDate(post.data.date)}</p>
   <h2><a href={getPostUrl(post)}>{post.data.title}</a></h2>
   <p class="article-excerpt">{post.data.description}</p>
   <div class="tag-list" aria-label="Tags">

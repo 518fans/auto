@@ -10,7 +10,6 @@ const posts = sortPosts(await getCollection('blog'));
 <BaseLayout title="sidebar.html" description="Generated sidebar page" canonicalPath="/sidebar.html">
   <section class="hero">
     <h1 class="page-title">sidebar.html</h1>
-    <p class="page-intro">This static page can act as a standalone sidebar hub or be reused as a template fragment.</p>
   </section>
 
   <BlogSidebar posts={posts} />
