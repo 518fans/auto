@@ -7,6 +7,7 @@ export const GET: APIRoute = () => {
     'Allow: /',
     '',
     `Sitemap: ${new URL('/sitemap.xml', blogConfig.siteUrl)}`,
+    `# Feed: ${new URL('/rss.xml', blogConfig.siteUrl)}`,
   ].join('\n');
 
   return new Response(body, {
